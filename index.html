@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>센티넬·가이드 통합관리국 — 매칭 적합성 검사</title>
+<meta name="description" content="자캐 페어의 센티넬 AU 적합률과 캐해를 판정서로 발급합니다." />
+<meta property="og:title" content="센티넬·가이드 통합관리국" />
+<meta property="og:description" content="매칭 적합성 검사 · 능력 평가 및 보직 배치" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Nanum+Gothic+Coding&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1b2a4a; --navy2:#31456f; --ink:#20242c; --sub:#5a6373;
+    --paper:#f4efe4; --paper2:#fbf8f0; --line:#c9bfa6; --seal:#b3272d;
+    --sen:#2f6f8f; --gui:#8a5a9e; --shadow:0 12px 40px rgba(20,30,55,.18);
+    --sans:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    --serif:'Gowun Batang','Nanum Myeongjo',serif;
+    --mono:'Courier Prime','Nanum Gothic Coding',monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body,#root{margin:0;padding:0;min-height:100%;}
+  body{
+    font-family:var(--sans);
+    color:var(--ink);
+    background:radial-gradient(1200px 600px at 50% -200px,#26365c 0%,#1b2a4a 40%,#13203c 100%);
+    min-height:100vh;padding:24px 14px 60px;
+  }
+  .wrap{max-width:720px;margin:0 auto;}
+  .screen{display:none;}
+  .screen.active{display:block;animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  /* INTRO */
+  .hero{text-align:center;color:#eef1f8;padding:26px 16px 8px;}
+  .emblem{width:74px;height:74px;margin:0 auto 14px;border-radius:50%;border:3px solid #cdb37e;
+    display:flex;align-items:center;justify-content:center;font-size:34px;color:#cdb37e;
+    background:rgba(205,179,126,.08);box-shadow:0 0 0 6px rgba(205,179,126,.12);}
+  .bureau-en{letter-spacing:.35em;font-size:11px;color:#9fb0d6;margin-bottom:6px;}
+  .hero h1{font-family:var(--serif);font-size:27px;margin:0 0 8px;font-weight:700;letter-spacing:-.01em;}
+  .bureau-en{font-family:var(--mono);}
+  .hero p{color:#b9c4de;font-size:14px;line-height:1.7;margin:0 auto;max-width:460px;}
+  .divider{width:60px;height:2px;background:#cdb37e;margin:20px auto;opacity:.7;}
+
+  .card-panel{background:linear-gradient(180deg,var(--paper2),var(--paper));
+    border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:26px 22px;margin-top:18px;}
+  .notice{background:rgba(27,42,74,.05);border:1px dashed var(--line);border-radius:10px;
+    padding:14px 16px;font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:20px;}
+  .notice b{color:var(--navy);}
+
+  .btn{display:block;width:100%;border:none;border-radius:10px;cursor:pointer;font-size:16px;
+    font-weight:700;padding:15px;transition:transform .06s,box-shadow .2s;font-family:inherit;}
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--navy);color:#fff;box-shadow:0 6px 18px rgba(27,42,74,.35);}
+  .btn-primary:hover{background:var(--navy2);}
+  .btn-ghost{background:transparent;color:var(--navy);border:1.5px solid var(--navy);}
+  .btn-gold{background:linear-gradient(135deg,#caa96a,#a9843f);color:#2a2413;box-shadow:0 6px 18px rgba(160,128,60,.4);}
+
+  /* FORM */
+  .form-head{color:#eef1f8;text-align:center;margin-bottom:6px;}
+  .form-head h2{font-family:var(--serif);margin:0 0 4px;font-size:21px;font-weight:700;}
+  .form-head span{font-family:var(--mono);font-size:12px;color:#9fb0d6;letter-spacing:.1em;}
+  .sec-title{font-size:13px;font-weight:800;color:var(--navy);letter-spacing:.05em;
+    border-left:3px solid var(--navy);padding-left:8px;margin:22px 0 12px;}
+  .subject-tag{display:inline-block;font-weight:800;font-size:13px;color:#fff;padding:5px 14px;
+    border-radius:20px;margin:22px 0 12px;}
+  .tag-a{background:var(--sen);} .tag-b{background:var(--gui);}
+
+  label.fld{display:block;font-size:13px;font-weight:700;color:var(--navy);margin:0 0 6px;}
+  input[type=text],textarea{width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:9px;
+    font-size:15px;font-family:inherit;background:#fff;margin-bottom:16px;}
+  textarea{min-height:84px;resize:vertical;line-height:1.5;font-size:14px;}
+  input[type=text]:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(27,42,74,.12);}
+
+  .grp{margin-bottom:16px;}
+  .grp-q{font-size:13.5px;font-weight:700;color:var(--ink);margin-bottom:9px;}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:8px 14px;
+    font-size:13px;cursor:pointer;font-family:inherit;color:var(--ink);transition:all .12s;}
+  .chip:hover{border-color:var(--navy2);}
+  .chip.sel{border-color:var(--navy);background:var(--navy);color:#fff;box-shadow:0 3px 10px rgba(27,42,74,.25);}
+
+  .more-toggle{width:100%;background:transparent;border:1.5px dashed var(--line);border-radius:10px;
+    padding:12px;font-size:14px;font-weight:700;color:var(--navy2);cursor:pointer;font-family:inherit;margin:8px 0 18px;}
+  .more-box{display:none;padding-top:4px;border-top:1px solid var(--line);margin-bottom:6px;}
+  .more-box.open{display:block;}
+
+  .err{color:var(--seal);font-size:13px;font-weight:700;text-align:center;margin:6px 0 14px;min-height:18px;}
+
+  /* CERT */
+  .cert-shell{padding:6px;}
+  .cert{position:relative;background:var(--paper2);border-radius:8px;overflow:hidden;box-shadow:var(--shadow);color:var(--ink);}
+  .cert::before{content:"";position:absolute;inset:10px;border:2px solid var(--navy);border-radius:4px;pointer-events:none;opacity:.85;}
+  .cert::after{content:"";position:absolute;inset:15px;border:1px solid var(--line);border-radius:2px;pointer-events:none;}
+  .cert-inner{position:relative;padding:30px 26px 26px;z-index:1;font-family:var(--serif);}
+  .cert-top{text-align:center;border-bottom:2px solid var(--navy);padding-bottom:16px;margin-bottom:18px;position:relative;}
+  .doc-no{position:absolute;top:0;right:0;font-family:var(--mono);font-size:10.5px;color:var(--sub);letter-spacing:.05em;font-variant-numeric:tabular-nums;}
+  .cert-emblem{width:52px;height:52px;margin:0 auto 8px;border-radius:50%;border:2px solid var(--navy);
+    display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--navy);}
+  .cert-bureau{font-size:12px;letter-spacing:.2em;color:var(--navy2);font-weight:700;}
+  .cert-title{font-family:var(--serif);font-size:24px;font-weight:700;letter-spacing:.15em;color:var(--navy);margin-top:6px;}
+
+  .compat{text-align:center;margin:6px 0 22px;}
+  .compat-label{font-size:12px;color:var(--sub);letter-spacing:.15em;font-weight:700;}
+  .compat-val{font-family:var(--mono);font-size:56px;font-weight:700;color:var(--navy);line-height:1.1;font-variant-numeric:tabular-nums;}
+  .compat-val span{font-size:26px;margin-left:2px;}
+  .compat-bar{height:9px;background:#e6ddc7;border-radius:6px;overflow:hidden;max-width:320px;margin:6px auto 8px;}
+  .compat-bar i{display:block;height:100%;background:linear-gradient(90deg,#caa96a,var(--navy));border-radius:6px;}
+  .compat-tag{display:inline-block;font-size:12px;font-weight:800;padding:4px 14px;border-radius:20px;color:#fff;letter-spacing:.05em;}
+
+  .subjects{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+  .subj{border:1px solid var(--line);border-radius:8px;padding:14px 12px;background:#fff;text-align:center;}
+  .role-badge{display:inline-block;font-size:11px;font-weight:800;color:#fff;padding:3px 12px;border-radius:14px;margin-bottom:8px;letter-spacing:.05em;}
+  .rb-sen{background:var(--sen);} .rb-gui{background:var(--gui);}
+  .subj .name{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:8px;word-break:break-all;}
+  .grade{font-family:var(--mono);font-size:32px;font-weight:700;line-height:1;color:var(--navy);}
+  .grade small{font-size:12px;color:var(--sub);font-weight:700;display:block;margin-top:2px;letter-spacing:.1em;}
+  .ability{font-size:12px;color:var(--sub);margin-top:8px;line-height:1.5;}
+  .ability b{color:var(--ink);}
+
+  .rows{border-top:1px solid var(--line);}
+  .row{display:flex;padding:11px 2px;border-bottom:1px solid var(--line);font-size:13.5px;}
+  .row .k{width:92px;flex:none;font-weight:800;color:var(--navy2);letter-spacing:.05em;}
+  .row .v{color:var(--ink);line-height:1.65;}
+
+  .cert-foot{display:flex;align-items:flex-end;justify-content:space-between;margin-top:20px;padding-top:12px;}
+  .issue{font-size:11.5px;color:var(--sub);line-height:1.8;}
+  .issue b{color:var(--navy);}
+  .seal{width:78px;height:78px;flex:none;border:3px double var(--seal);border-radius:50%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--seal);transform:rotate(-9deg);opacity:.92;}
+  .seal .s1{font-family:var(--mono);font-size:8px;letter-spacing:.1em;font-weight:700;}
+  .seal .s2{font-family:var(--serif);font-size:16px;font-weight:700;letter-spacing:.1em;margin:1px 0;}
+  .seal .s3{font-family:var(--mono);font-size:7.5px;letter-spacing:.08em;}
+  .disclaimer{text-align:center;font-size:10.5px;color:var(--sub);margin-top:14px;opacity:.8;}
+
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+  .ai-badge{display:inline-block;font-size:10px;font-weight:800;color:#fff;background:#6a4b9e;border-radius:10px;padding:2px 8px;margin-left:6px;vertical-align:middle;letter-spacing:.03em;}
+  .thinking{color:var(--sub);font-style:italic;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .spin{display:inline-block;width:11px;height:11px;border:2px solid #cbb58a;border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-1px;margin-right:6px;}
+  @media (max-width:480px){
+    .hero h1{font-size:22px;} .compat-val{font-size:48px;} .subjects{grid-template-columns:1fr;}
+    .cert-inner{padding:26px 16px 22px;} .cert-title{font-size:19px;letter-spacing:.1em;}
+  }
+</style>
+</head>
+<body>
+<div id="root" class="wrap">
+
+  <!-- INTRO -->
+  <section id="s-intro" class="screen active">
+    <div class="hero">
+      <div class="emblem">◈</div>
+      <div class="bureau-en">SENTINEL · GUIDE CONTROL BUREAU</div>
+      <h1>센티넬·가이드 통합관리국</h1>
+      <p>자캐 페어의 서사와 성향을 입력하면 센티넬 AU 기준<br/><b>매칭 적합률</b>·능력 평가·보직 배치를 <b>공식 판정서</b>로 발급합니다.</p>
+      <div class="divider"></div>
+    </div>
+    <div class="card-panel">
+      <div class="notice">
+        <b>안내</b> · 관계 서사 3문항과 각 인물의 성향을 선택하면 판정이 산출됩니다.
+        인물 설정을 붙여넣으면 판정에 반영됩니다. 동일 입력은 <b>항상 동일한 판정</b>이 발급됩니다.
+      </div>
+      <button class="btn btn-primary" onclick="go('form')">적합성 검사 시작</button>
+    </div>
+  </section>
+
+  <!-- FORM -->
+  <section id="s-form" class="screen">
+    <div class="form-head"><h2>매칭 적합성 검사</h2><span>SUBJECT REGISTRATION</span></div>
+    <div class="card-panel">
+
+      <div class="sec-title">관계 서사</div>
+      <div id="narrativeGroups"></div>
+
+      <div class="subject-tag tag-a">대상 A</div>
+      <label class="fld">이름 / 호칭</label>
+      <input type="text" id="nameA" maxlength="16" placeholder="예: 서리" autocomplete="off" />
+      <div id="charA"></div>
+
+      <div class="subject-tag tag-b">대상 B</div>
+      <label class="fld">이름 / 호칭</label>
+      <input type="text" id="nameB" maxlength="16" placeholder="예: 도하" autocomplete="off" />
+      <div id="charB"></div>
+
+      <div class="sec-title">넣고 싶은 키워드 (선택)</div>
+      <input type="text" id="keyword" maxlength="30" placeholder="예: 첫사랑, 배신, 재회…" autocomplete="off" />
+
+      <button class="more-toggle" id="moreToggle" onclick="toggleMore()">＋ 더 채우기 · 설정 붙여넣기</button>
+      <div class="more-box" id="moreBox">
+        <div id="extraGroups"></div>
+        <div class="sec-title">대상 A — 설정 붙여넣기</div>
+        <textarea id="profA" placeholder="프로필 시트·설정 메모·트윗 등 무엇이든 붙여넣으세요. (선택)"></textarea>
+        <div class="sec-title">대상 B — 설정 붙여넣기</div>
+        <textarea id="profB" placeholder="프로필 시트·설정 메모·트윗 등 무엇이든 붙여넣으세요. (선택)"></textarea>
+      </div>
+
+      <div class="err" id="formErr"></div>
+      <button class="btn btn-gold" onclick="issue()">판정서 발급하기</button>
+      <div style="height:10px"></div>
+      <button class="btn btn-ghost" onclick="go('intro')">처음으로</button>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="s-result" class="screen">
+    <div class="form-head"><h2>판정 완료</h2><span>OFFICIAL CERTIFICATE ISSUED</span></div>
+    <div class="cert-shell"><div class="cert" id="cert"><div class="cert-inner" id="certInner"></div></div></div>
+    <div class="actions">
+      <button class="btn btn-gold" onclick="saveImage()">이미지로 저장</button>
+      <button class="btn btn-ghost" onclick="go('form')" style="color:#eef1f8;border-color:#8b9ac0;">다시 검사</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ===== 문항 정의 (원본 구조) ===== */
+const NARRATIVE = [
+  {key:'meet',    q:'처음 마주친 상황', opts:['임무 중 사고','어릴 때부터','관리국이 배정','주워왔다','적으로 만남']},
+  {key:'obstacle',q:'둘 사이를 막는 것', opts:['없음','과거의 상처','소유욕','자기희생벽','소속 차이','서로 말을 안 함']},
+  {key:'ending',  q:'서사가 향하는 곳', opts:['순애','비극','구원','공멸','일상','미정']},
+];
+const CHARQ = [
+  {key:'feel',  q:'상대를 향한 마음', opts:['순애','집착','헌신','애증','못 잡아먹어 안달','무심']},
+  {key:'crisis',q:'위기가 오면',     opts:['앞에 나선다','상대를 먼저 피신시킨다','무너진다','폭주한다','계산한다']},
+];
+const EXTRA = [
+  {key:'touch',q:'접촉과 거리감',     opts:['접촉 거부','필요할 때만','무의식적으로 붙어 있음','과잉']},
+  {key:'bond', q:'결합에 대한 태도',   opts:['원하지만 말 못 함','거부','당연하게 여김','두려워함','이미 결합함']},
+];
+
+/* ===== 상태 ===== */
+const state = {meet:null,obstacle:null,ending:null,touch:null,bond:null,
+  A:{feel:null,crisis:null}, B:{feel:null,crisis:null}};
+
+/* ===== 렌더 ===== */
+function chipGroup(scope,g){
+  return `<div class="grp"><div class="grp-q">${g.q}</div><div class="chips">${
+    g.opts.map(o=>`<button type="button" class="chip" data-s="${scope}" data-k="${g.key}" data-v="${o}"
+      onclick="pick('${scope}','${g.key}',this)">${o}</button>`).join('')
+  }</div></div>`;
+}
+document.getElementById('narrativeGroups').innerHTML = NARRATIVE.map(g=>chipGroup('root',g)).join('');
+document.getElementById('charA').innerHTML = CHARQ.map(g=>chipGroup('A',g)).join('');
+document.getElementById('charB').innerHTML = CHARQ.map(g=>chipGroup('B',g)).join('');
+document.getElementById('extraGroups').innerHTML = EXTRA.map(g=>chipGroup('root',g)).join('');
+
+function pick(scope,key,btn){
+  const val = btn.dataset.v;
+  if(scope==='root') state[key]=val; else state[scope][key]=val;
+  document.querySelectorAll(`.chip[data-s="${scope}"][data-k="${key}"]`).forEach(b=>b.classList.toggle('sel',b===btn));
+}
+function toggleMore(){
+  const box=document.getElementById('moreBox');
+  const open=box.classList.toggle('open');
+  document.getElementById('moreToggle').textContent=(open?'－ 접기':'＋ 더 채우기 · 설정 붙여넣기');
+}
+function go(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('s-'+name).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ===== 유틸 & 엔진 ===== */
+function hashStr(s){let h=0x811c9dc5;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193);}return h>>>0;}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+const CRISIS={'앞에 나선다':{sen:3,gui:0,p:3},'상대를 먼저 피신시킨다':{sen:2,gui:1,p:2},
+  '무너진다':{sen:0,gui:3,p:1},'폭주한다':{sen:3,gui:0,p:2},'계산한다':{sen:1,gui:2,p:3}};
+const FEELP={'순애':{p:1,sen:0,gui:0},'집착':{p:2,sen:1,gui:0},'헌신':{p:2,sen:0,gui:1},
+  '애증':{p:2,sen:1,gui:0},'못 잡아먹어 안달':{p:2,sen:1,gui:0},'무심':{p:0,sen:0,gui:0}};
+const SEN_ABIL=['초각(超覺) 시야','광역 청각 감응','촉각 정밀 감지','후각 추적','미각 독성 감별','공간 진동 탐지'];
+const GUI_ABIL=['감정 진정(鎭靜)','정신 차폐막','공감 동조','기억 안정화','광역 심상 투사','유대 강화'];
+const POSTS=['최전선 현장 대응반','대도시 경계 초소','심층 탐사 특무대','후방 지원·상담부','관리국 훈련 교관','극비 잠입 기동대','재난 구조 전담반','경계 순찰 3과'];
+
+function grade(p){if(p>=5)return'S';if(p>=4)return'A';if(p>=3)return'B';if(p>=2)return'C';return'D';}
+function evalChar(name,c){
+  const cr=CRISIS[c.crisis], fe=FEELP[c.feel];
+  const sen=cr.sen+fe.sen, gui=cr.gui+fe.gui, p=cr.p+fe.p;
+  const h=hashStr((name||'무명').trim().toLowerCase());
+  let role = sen>gui?'센티넬':gui>sen?'가이드':((h%2)?'센티넬':'가이드');
+  const abil = role==='센티넬'?SEN_ABIL[h%SEN_ABIL.length]:GUI_ABIL[h%GUI_ABIL.length];
+  return {name:name.trim(),role,grade:grade(p),p,abil,h};
+}
+
+const M_END={'순애':14,'구원':10,'일상':12,'미정':0,'비극':-6,'공멸':-12};
+const M_OBST={'없음':8,'과거의 상처':2,'소유욕':-2,'자기희생벽':-4,'소속 차이':-3,'서로 말을 안 함':-6};
+const M_MEET={'어릴 때부터':6,'주워왔다':4,'관리국이 배정':3,'임무 중 사고':2,'적으로 만남':-4};
+const M_TOUCH={'무의식적으로 붙어 있음':6,'필요할 때만':2,'과잉':2,'접촉 거부':-4};
+const M_BOND={'이미 결합함':10,'당연하게 여김':6,'원하지만 말 못 함':2,'두려워함':-3,'거부':-6};
+const WARM=['순애','헌신'], VOLA=['집착','애증','못 잡아먹어 안달'];
+
+function compatTag(v){
+  if(v>=85)return{t:'최상위 결합',c:'#2e7d5b'};
+  if(v>=70)return{t:'안정 결합',c:'#2f6f8f'};
+  if(v>=55)return{t:'조건부 승인',c:'#8a5a9e'};
+  if(v>=40)return{t:'요(要)관찰',c:'#b06a1e'};
+  return{t:'부적합 경고',c:'#b3272d'};
+}
+
+const D_MEET={'임무 중 사고':'임무 중 사고로 얽히며 처음 만났고','어릴 때부터':'어린 시절부터 서로를 알아왔고',
+  '관리국이 배정':'관리국의 배정으로 파트너가 되었고','주워왔다':'한쪽이 다른 쪽을 거두면서 인연이 시작됐고','적으로 만남':'적으로 처음 마주쳤고'};
+const D_OBST={'없음':'이렇다 할 장애물은 없다','과거의 상처':'각자의 과거 상처가 발목을 잡는다','소유욕':'짙은 소유욕이 관계를 시험한다',
+  '자기희생벽':'습관적인 자기희생이 균열을 만든다','소속 차이':'서로 다른 소속이 벽으로 작용한다','서로 말을 안 함':'말하지 않는 습관이 오해를 키운다'};
+const D_END={'순애':'끝내 순애로 귀결될 결합','비극':'비극으로 향하는 위태로운 결합','구원':'서로를 구원하는 결합',
+  '공멸':'함께 무너질 위험을 안은 결합','일상':'잔잔한 일상으로 안착하는 결합','미정':'아직 결말이 정해지지 않은 결합'};
+
+function issue(){
+  const nameA=document.getElementById('nameA').value.trim();
+  const nameB=document.getElementById('nameB').value.trim();
+  const err=document.getElementById('formErr');
+  if(!nameA||!nameB){err.textContent='두 인물의 이름을 입력해 주세요.';return;}
+  if(!state.meet||!state.obstacle||!state.ending){err.textContent='관계 서사 3문항을 모두 선택해 주세요.';return;}
+  if(!state.A.feel||!state.A.crisis||!state.B.feel||!state.B.crisis){err.textContent='각 인물의 마음·위기 문항을 선택해 주세요.';return;}
+  err.textContent='';
+
+  const kw=document.getElementById('keyword').value.trim();
+  const profA=document.getElementById('profA').value.trim();
+  const profB=document.getElementById('profB').value.trim();
+
+  const A=evalChar(nameA,state.A), B=evalChar(nameB,state.B);
+  const cross=A.role!==B.role;
+  const h=hashStr([nameA,nameB,state.meet,state.obstacle,state.ending,state.A.feel,state.A.crisis,state.B.feel,state.B.crisis,state.touch,state.bond].join('|'));
+
+  let compat=52;
+  compat += cross?28:-8;
+  compat += (M_END[state.ending]||0);
+  compat += (M_OBST[state.obstacle]||0);
+  compat += (M_MEET[state.meet]||0);
+  if(state.touch) compat += (M_TOUCH[state.touch]||0);
+  if(state.bond)  compat += (M_BOND[state.bond]||0);
+  const bothWarm=WARM.includes(state.A.feel)&&WARM.includes(state.B.feel);
+  const bothVola=VOLA.includes(state.A.feel)&&VOLA.includes(state.B.feel);
+  const anyCold=state.A.feel==='무심'||state.B.feel==='무심';
+  if(bothWarm)compat+=8; else if(bothVola)compat+=2;
+  if(anyCold)compat-=5;
+  compat += Math.max(0,4-Math.abs(A.p-B.p));
+  compat += (h%11)-4;
+  compat = Math.max(20,Math.min(99,compat));
+
+  const tag=compatTag(compat);
+  const post=POSTS[(h+A.p+B.p)%POSTS.length];
+
+  // 캐해 소견
+  let comment=`${A.name}와(과) ${B.name}는 ${D_MEET[state.meet]}, ${D_OBST[state.obstacle]}. 그럼에도 이 관계는 ${D_END[state.ending]}이다. `+
+    `${A.name}은(는) 상대에게 '${state.A.feel}', ${B.name}은(는) '${state.B.feel}'의 마음을 품으며, `+
+    `위기 앞에서 각각 '${state.A.crisis}'·'${state.B.crisis}' 유형으로 반응한다. `+
+    (cross?`센티넬과 가이드가 맞물린 상호보완형으로, `:`같은 계열이 공명하는 동계열형으로, `)+
+    `관리국은 이 페어를 '${tag.t}'(으)로 판정한다.`;
+  if(kw) comment+=` 제출 키워드 '${escapeHtml(kw)}'가 서사의 색을 짙게 물들인다.`;
+  if(profA||profB) comment+=` ※ 제출된 설정 시트가 판정에 반영되었다.`;
+
+  const now=new Date(), y=now.getFullYear();
+  const docNo=`SG-${y}-${String(h%100000).padStart(5,'0')}`;
+  const dateStr=`${y}. ${String(now.getMonth()+1).padStart(2,'0')}. ${String(now.getDate()).padStart(2,'0')}.`;
+
+  const subj=X=>`<div class="subj">
+      <span class="role-badge ${X.role==='센티넬'?'rb-sen':'rb-gui'}">${X.role}</span>
+      <div class="name">${escapeHtml(X.name)}</div>
+      <div class="grade">${X.grade}<small>능력 등급</small></div>
+      <div class="ability">대표 능력<br/><b>${X.abil}</b></div>
+    </div>`;
+
+  let extraRow='';
+  if(state.touch||state.bond){
+    const parts=[]; if(state.touch)parts.push('접촉 '+state.touch); if(state.bond)parts.push('결합 '+state.bond);
+    extraRow=`<div class="row"><div class="k">관계 양상</div><div class="v">${parts.join(' · ')}</div></div>`;
+  }
+
+  document.getElementById('certInner').innerHTML=`
+    <div class="cert-top">
+      <div class="doc-no">문서번호 ${docNo}</div>
+      <div class="cert-emblem">◈</div>
+      <div class="cert-bureau">센티넬·가이드 통합관리국</div>
+      <div class="cert-title">매칭 적합성 판정서</div>
+    </div>
+    <div class="compat">
+      <div class="compat-label">종합 매칭 적합률</div>
+      <div class="compat-val">${compat}<span>%</span></div>
+      <div class="compat-bar"><i style="width:${compat}%"></i></div>
+      <div class="compat-tag" style="background:${tag.c}">${tag.t}</div>
+    </div>
+    <div class="subjects">${subj(A)}${subj(B)}</div>
+    <div class="rows">
+      <div class="row"><div class="k">권장 보직</div><div class="v">${post}</div></div>
+      <div class="row"><div class="k">결합 유형</div><div class="v">${cross?'상호보완형 (센티넬 × 가이드)':'동계열 공명형 ('+A.role+' × '+B.role+')'}</div></div>
+      <div class="row"><div class="k">서사 결말</div><div class="v">${state.ending} · 장애 요인: ${state.obstacle}</div></div>
+      ${extraRow}
+      <div class="row"><div class="k">캐해 소견</div><div class="v" id="commentV">${comment}</div></div>
+    </div>
+    <div class="cert-foot">
+      <div class="issue">발급일 <b>${dateStr}</b><br/>상기 대상의 적합성을 위와 같이 판정함.<br/><b>센티넬·가이드 통합관리국장</b> 직인</div>
+      <div class="seal"><div class="s1">SENTINEL·GUIDE</div><div class="s2">통합관리국</div><div class="s3">CONTROL BUREAU</div></div>
+    </div>
+    <div class="disclaimer">※ 본 판정서는 창작(자캐) 활동용이며 실제 효력이 없습니다.</div>`;
+  go('result');
+
+  // AI 심층 판정(선택): Netlify 함수에 키가 있으면 캐해 소견을 AI가 재작성, 없으면 결정론 유지
+  const cv=document.getElementById('commentV');
+  const deterministic=cv.innerHTML;
+  const payload={nameA:A.name,nameB:B.name,roleA:A.role,roleB:B.role,gradeA:A.grade,gradeB:B.grade,
+    compat,tag:tag.t,post,meet:state.meet,obstacle:state.obstacle,ending:state.ending,
+    feelA:state.A.feel,crisisA:state.A.crisis,feelB:state.B.feel,crisisB:state.B.crisis,
+    touch:state.touch,bond:state.bond,keyword:kw,profA,profB};
+  cv.innerHTML='<span class="spin"></span><span class="thinking">관리국 심사관이 소견을 작성하는 중…</span>';
+  enrichAI(payload).then(text=>{
+    cv.innerHTML = text
+      ? escapeHtml(text).replace(/\n/g,'<br>')+' <span class="ai-badge">AI 판정</span>'
+      : deterministic;
+  });
+}
+
+async function enrichAI(payload){
+  // 로컬 서버(server.mjs)의 /judge 로 요청 → 서버가 `claude -p` 실행(구독 인증)
+  // index.html 을 파일로 직접 열면 서버가 없어 자동으로 결정론 판정으로 폴백됨
+  try{
+    const res=await fetch('/judge',{method:'POST',
+      headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
+    if(!res.ok) return null;
+    const data=await res.json();
+    if(data&&data.ok&&data.commentary) return data.commentary;
+  }catch(e){}
+  return null;
+}
+
+async function saveImage(){
+  const el=document.getElementById('cert');
+  try{
+    const canvas=await html2canvas(el,{backgroundColor:'#fbf8f0',scale:2,useCORS:true});
+    const link=document.createElement('a');
+    link.download='센티넬가이드_판정서.png';
+    link.href=canvas.toDataURL('image/png');
+    link.click();
+  }catch(e){alert('이미지 저장에 실패했어요. 화면을 캡처해 주세요.');}
+}
+</script>
+</body>
+</html>
