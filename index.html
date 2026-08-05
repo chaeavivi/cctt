@@ -416,8 +416,10 @@ function issue(){
 }
 
 async function enrichAI(payload){
+  // 로컬 서버(server.mjs)의 /judge 로 요청 → 서버가 `claude -p` 실행(구독 인증)
+  // index.html 을 파일로 직접 열면 서버가 없어 자동으로 결정론 판정으로 폴백됨
   try{
-    const res=await fetch('/.netlify/functions/judge',{method:'POST',
+    const res=await fetch('/judge',{method:'POST',
       headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
     if(!res.ok) return null;
     const data=await res.json();
