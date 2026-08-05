@@ -131,6 +131,10 @@
   .disclaimer{text-align:center;font-size:10.5px;color:var(--sub);margin-top:14px;opacity:.8;}
 
   .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+  .ai-badge{display:inline-block;font-size:10px;font-weight:800;color:#fff;background:#6a4b9e;border-radius:10px;padding:2px 8px;margin-left:6px;vertical-align:middle;letter-spacing:.03em;}
+  .thinking{color:var(--sub);font-style:italic;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .spin{display:inline-block;width:11px;height:11px;border:2px solid #cbb58a;border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite;vertical-align:-1px;margin-right:6px;}
   @media (max-width:480px){
     .hero h1{font-size:22px;} .compat-val{font-size:48px;} .subjects{grid-template-columns:1fr;}
     .cert-inner{padding:26px 16px 22px;} .cert-title{font-size:19px;letter-spacing:.1em;}
@@ -380,7 +384,7 @@ function issue(){
       <div class="row"><div class="k">결합 유형</div><div class="v">${cross?'상호보완형 (센티넬 × 가이드)':'동계열 공명형 ('+A.role+' × '+B.role+')'}</div></div>
       <div class="row"><div class="k">서사 결말</div><div class="v">${state.ending} · 장애 요인: ${state.obstacle}</div></div>
       ${extraRow}
-      <div class="row"><div class="k">캐해 소견</div><div class="v">${comment}</div></div>
+      <div class="row"><div class="k">캐해 소견</div><div class="v" id="commentV">${comment}</div></div>
     </div>
     <div class="cert-foot">
       <div class="issue">발급일 <b>${dateStr}</b><br/>상기 대상의 적합성을 위와 같이 판정함.<br/><b>센티넬·가이드 통합관리국장</b> 직인</div>
@@ -388,6 +392,31 @@ function issue(){
     </div>
     <div class="disclaimer">※ 본 판정서는 창작(자캐) 활동용이며 실제 효력이 없습니다.</div>`;
   go('result');
+
+  // AI 심층 판정(선택): Netlify 함수에 키가 있으면 캐해 소견을 AI가 재작성, 없으면 결정론 유지
+  const cv=document.getElementById('commentV');
+  const deterministic=cv.innerHTML;
+  const payload={nameA:A.name,nameB:B.name,roleA:A.role,roleB:B.role,gradeA:A.grade,gradeB:B.grade,
+    compat,tag:tag.t,post,meet:state.meet,obstacle:state.obstacle,ending:state.ending,
+    feelA:state.A.feel,crisisA:state.A.crisis,feelB:state.B.feel,crisisB:state.B.crisis,
+    touch:state.touch,bond:state.bond,keyword:kw,profA,profB};
+  cv.innerHTML='<span class="spin"></span><span class="thinking">관리국 심사관이 소견을 작성하는 중…</span>';
+  enrichAI(payload).then(text=>{
+    cv.innerHTML = text
+      ? escapeHtml(text).replace(/\n/g,'<br>')+' <span class="ai-badge">AI 판정</span>'
+      : deterministic;
+  });
+}
+
+async function enrichAI(payload){
+  try{
+    const res=await fetch('/.netlify/functions/judge',{method:'POST',
+      headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
+    if(!res.ok) return null;
+    const data=await res.json();
+    if(data&&data.ok&&data.commentary) return data.commentary;
+  }catch(e){}
+  return null;
 }
 
 async function saveImage(){

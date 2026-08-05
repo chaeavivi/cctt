@@ -1,0 +1,10 @@
+# Netlify 설정 — 센티넬·가이드 통합관리국
+# 정적 사이트(루트) + 서버리스 함수(netlify/functions)
+
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# 함수는 /.netlify/functions/judge 로 호출됩니다.
+# ANTHROPIC_API_KEY 는 Netlify 대시보드 > Site settings > Environment variables 에 등록하세요.
+# (선택) CLAUDE_MODEL 로 모델 변경 가능. 기본값: claude-sonnet-5
