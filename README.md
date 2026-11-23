@@ -39,7 +39,7 @@ node server.mjs
 
 ---
 
-## 깜돌의 섬 산책 (`yejuni-island.html`)
+## 깜돌의 섬 산책 (`kkamdol/index.html`)
 
 예주니와 함니가 작은 섬을 걷는 산책 미니게임. 파일 하나로 동작하며 외부 리소스가 없다.
 - 이동: 방향키 · WASD · 화면 클릭(모바일은 터치 패드)
